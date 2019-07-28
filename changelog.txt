@@ -1,0 +1,5 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.0.1
+Date: 2019-06-16
+  Features:
+    - Burner inserters and machines run faster if their fuel has an acceleration bonus.
