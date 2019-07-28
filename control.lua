@@ -180,7 +180,7 @@ function set_cursor(player, item)
 end
 
 script.on_init(on_init)
-script.on_configuration_changed(on_init)
+script.on_configuration_changed(on_configuration_changed)
 script.on_event(defines.events.on_built_entity, on_built)
 script.on_event(defines.events.on_robot_built_entity, on_built)
 script.on_event(defines.events.script_raised_built, on_built)
