@@ -4,7 +4,7 @@ A mod for [Factorio](https://www.factorio.com) that makes burner inserters and m
 ---
 Burner inserters and machines run faster if their fuel has an acceleration bonus.
 
-Supported buildings include:
+Supported burner buildings include:
 * Inserters
 * Furnaces
 * Mining drills
