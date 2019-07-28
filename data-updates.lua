@@ -56,7 +56,8 @@ local function create_bonus_entity(base_entity, bonus)
     -- Default rotation_speed: https://wiki.factorio.com/Prototype/Radar#rotation_speed
     if not entity.rotation_speed then entity.rotation_speed = 0.01 end
     entity.rotation_speed = entity.rotation_speed * multiplier
-    entity.energy_per_sector = entity.energy_per_sector / multiplier
+    local numbers, letters = entity.energy_per_sector:match("(%d+)(.*)")
+    entity.energy_per_sector = (numbers / multiplier) .. letters
 
   else
     -- No bonus available
