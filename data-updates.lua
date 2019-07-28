@@ -1,35 +1,32 @@
--- Load fuel bonuses
-local bonuses = {}
-for _, fuel in pairs(data.raw.item) do
-  if fuel.fuel_acceleration_multiplier then
-    local category = fuel.fuel_category
-    local percent = math.floor(fuel.fuel_acceleration_multiplier * 100 + 0.5)
-    if percent > 0 and percent ~= 100 then
-      if not bonuses[category] then bonuses[category] = {} end
-      bonuses[category][percent] = true
-    end
-  end
-end
-
 local function create_bonus_entity(base_entity, bonus)
-  -- Create a faster version of the entity
-  local multiplier = bonus / 100
-  local entity = table.deepcopy(base_entity)
-  entity.name = "burner-fuel-bonus-" .. base_entity.name .. "-x" .. bonus
-  if not entity.localised_name then
-    entity.localised_name = {"entity-name." .. base_entity.name}
+  -- Ignore this mod's entities
+  if base_entity.name:sub(1, 18) == "burner-fuel-bonus-" then
+    return
   end
 
-  -- Remove placeable flags
-  if entity.flags then
-    for i = #entity.flags, 1, -1 do
-      if entity.flags[i] == "placeable-neutral"
-      or entity.flags[i] == "placeable-player"
-      or entity.flags[i] == "placeable-enemy" then
-        entity.flags[i] = nil
-      end
+  -- Check for duplicates
+  local name = "burner-fuel-bonus-" .. base_entity.name .. "-x" .. bonus
+  if data.raw[base_entity.type][name] then
+    return
+  end
+
+  -- Find the original item used to build the entity
+  local base_item = nil
+  for _, item in pairs(data.raw.item) do
+    if item.place_result == base_entity.name then
+      base_item = item
+      break
     end
   end
+  if not base_item then
+    -- The entity is not buildable, abort!
+    return
+  end
+
+  -- Create a faster version of the entity
+  local entity = table.deepcopy(base_entity)
+  entity.name = name
+  local multiplier = bonus / 100
 
   -- Add speed bonuses
   if entity.type == "assembling-machine"
@@ -38,6 +35,9 @@ local function create_bonus_entity(base_entity, bonus)
     entity.crafting_speed = entity.crafting_speed * multiplier
 
   elseif entity.type == "inserter" then
+    -- Default effectivity: https://wiki.factorio.com/Types/EnergySource#effectivity
+    if not entity.energy_source.effectivity then entity.energy_source.effectivity = 1 end
+    entity.energy_source.effectivity = entity.energy_source.effectivity * multiplier
     entity.rotation_speed = entity.rotation_speed * multiplier
     entity.extension_speed = entity.extension_speed * multiplier
 
@@ -63,18 +63,84 @@ local function create_bonus_entity(base_entity, bonus)
     return
   end
 
-  log(entity.name .. " " .. bonus .. "%")
+  -- Display the base entity name
+  if not entity.localised_name then
+    entity.localised_name = {"entity-name." .. base_entity.name}
+  end
+
+  -- Add to base entity's fast_replaceable_group
+  if not base_entity.fast_replaceable_group then
+    base_entity.fast_replaceable_group = base_entity.name
+  end
+  entity.fast_replaceable_group = base_entity.fast_replaceable_group
+
+  -- Remove placeable flags
+  if entity.flags then
+    for i = #entity.flags, 1, -1 do
+      if entity.flags[i] == "placeable-neutral"
+      or entity.flags[i] == "placeable-player"
+      or entity.flags[i] == "placeable-enemy" then
+        table.remove(entity.flags, i)
+      end
+    end
+  end
+
+  -- Add a fake item to help with creating blueprints
+  local item = table.deepcopy(base_item)
+  item.name = "burner-fuel-bonus-" .. base_item.name .. "-x" .. bonus
+  if not item.localised_name then
+    item.localised_name = entity.localised_name
+  end
+  item.place_result = entity.name
+
+  -- Hide item
+  item.subgroup = nil
+  if not item.flags then
+    item.flags = {"hidden"}
+  else
+    local already_hidden = false
+    for _, flag in pairs(item.flags) do
+      if flag == "hidden" then
+        already_hidden = true
+        break
+      end
+    end
+    if not already_hidden then
+      table.insert(item.flags, "hidden")
+    end
+  end
+
   data:extend{entity}
+  data:extend{item}
+end
+
+-- Load fuel bonuses
+local bonuses = {}
+for _, fuel in pairs(data.raw.item) do
+  if fuel.fuel_acceleration_multiplier then
+    local category = fuel.fuel_category
+    local percent = math.floor(fuel.fuel_acceleration_multiplier * 100 + 0.5)
+    if percent > 0 and percent ~= 100 then
+      if not bonuses[category] then bonuses[category] = {} end
+      bonuses[category][percent] = true
+    end
+  end
 end
 
 -- Create a copy of each entity with each bonus
-for _, entity in pairs(data.raw) do
-  if entity.energy_source and entity.energy_source.type == "burner" then
-    -- Default fuel_category: https://wiki.factorio.com/Types/EnergySource#fuel_category
-    local category = entity.energy_source.fuel_category or "chemical"
-    if bonuses[category] then
-      for bonus, _ in pairs(bonuses[category]) do
-        create_bonus_entity(entity, bonus)
+for _, type in pairs(data.raw) do
+  for _, entity in pairs(type) do
+    if entity.energy_source and entity.energy_source.type == "burner" then
+      local categories = entity.energy_source.fuel_categories
+      if not categories then
+        categories = {entity.energy_source.fuel_category or "chemical"}
+      end
+      for _, category in pairs(categories) do
+        if bonuses[category] then
+          for bonus, _ in pairs(bonuses[category]) do
+            create_bonus_entity(entity, bonus)
+          end
+        end
       end
     end
   end
