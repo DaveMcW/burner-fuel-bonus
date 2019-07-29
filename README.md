@@ -4,19 +4,24 @@ A mod for [Factorio](https://www.factorio.com) that makes burner inserters and m
 ---
 Burner inserters and machines run faster if their fuel has an acceleration bonus.
 
-Supported burner buildings include:
-* Inserters
-* Furnaces
-* Mining drills
-* Assembling machines*
-* Labs*
-* Pumps*
-* Radars*
+Burner inserter - faster rotation
 
-\*Not available in vanilla Factorio
+Stone furnace and steel furnace - faster crafting speed
+
+Burner mining drill - faster mining speed
+
+Also applies to modded buildings!
+
+Burner assembling machine - faster crafting speed
+
+Burner lab - faster research speed
+
+Burner pump - faster pump speed
+
+Burner radar - faster scanning speed
 
 ### Uninstalling
 ---
-It is recommended to turn off the mod using mod settings before removing it from a map. Otherwise your burner buildings may be deleted.
+Before removing the mod from a map, it is recommended to turn off bonuses using Settings -> Mod settings. Otherwise your burner buildings may be deleted.
 
 ![Mod settings](docs/settings.png)

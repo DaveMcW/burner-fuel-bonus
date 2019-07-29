@@ -55,14 +55,9 @@ function on_tick(event)
   if not my_settings["burner-fuel-bonus-enable"].value then return end
   -- Update N entities per tick
   for i = 1, my_settings["burner-fuel-bonus-refresh-rate"].value do
-    if not global.burners[global.burner_index] then global.burner_index = nil end
-    global.burner_index, entity = next(global.burners, global.burner_index)
-    if not entity then return end
-    if entity.valid then
-      update_burner(entity)
-    else
-      global.burners[global.burner_index] = nil
-    end
+    local index = global.burner_index
+    global.burner_index = next(global.burners, global.burner_index)
+    update_burner(index)
   end
 end
 
@@ -119,7 +114,15 @@ function on_setting_changed(event)
   end
 end
 
-function update_burner(entity)
+function update_burner(index)
+  local entity = global.burners[index]
+  if not entity then return end
+  if not entity.valid then
+    -- Remove entity from cache
+    global.burners[index] = nil
+    return
+  end
+
   -- Read the entity and fuel names
   local name = get_base_name(entity.name)
   local fuel = entity.burner.currently_burning
@@ -134,24 +137,38 @@ function update_burner(entity)
     if not game.entity_prototypes[name] then return end
     local new_entity = replace_burner(entity, name)
     if new_entity then
-      global.burners[global.burner_index] = new_entity
+      global.burners[index] = new_entity
     end
   end
 end
 
 function replace_burner(entity, name)
+  -- Save stats that can't be fast replaced
   local last_user = entity.last_user
+  local health = entity.health
+
+  -- Fast replace
   local new_entity = entity.surface.create_entity{
+    fast_replace = true,
     name = name,
     position = entity.position,
     direction = entity.direction,
     force = entity.force,
-    fast_replace = true,
     spill = false,
     create_build_effect_smoke = false,
   }
-  if last_user then new_entity.last_user = last_user end
-  script.raise_event(defines.events.script_raised_built, {entity=new_entity, burner_fuel_bonus=true})
+
+  if new_entity then
+    -- Update stats
+    new_entity.health = health
+    if last_user then
+      new_entity.last_user = last_user
+    end
+
+    -- Raise build event
+    script.raise_event(defines.events.script_raised_built, {entity=new_entity, burner_fuel_bonus=true})
+  end
+
   return new_entity
 end
 
