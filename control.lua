@@ -144,8 +144,9 @@ end
 
 function replace_burner(entity, name)
   -- Save stats that can't be fast replaced
-  local last_user = entity.last_user
   local health = entity.health
+  local deconstruct = entity.to_be_deconstructed(entity.force)
+  local last_user = entity.last_user
 
   -- Fast replace
   local new_entity = entity.surface.create_entity{
@@ -161,6 +162,9 @@ function replace_burner(entity, name)
   if new_entity then
     -- Update stats
     new_entity.health = health
+    if deconstruct then
+      new_entity.order_deconstruction(new_entity.force)
+    end
     if last_user then
       new_entity.last_user = last_user
     end
