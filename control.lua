@@ -75,6 +75,7 @@ function on_blueprint_created(event)
 
   -- Replace modded entity with the base entity
   local entities = blueprint.get_blueprint_entities()
+  if not entities then return end
   for _, entity in pairs(entities) do
     entity.name = get_base_name(entity.name)
   end
