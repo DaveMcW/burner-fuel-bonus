@@ -39,17 +39,6 @@ function on_configuration_changed()
   end
 end
 
-function on_built(event)
-  local entity = event.created_entity or event.entity or event.destination
-  if not entity or not entity.valid then return end
-  if not MY_TYPES[entity.type] then return end
-  if not entity.prototype.burner_prototype then return end
-  if event.burner_fuel_bonus then return end
-
-  -- Add to burner entity cache
-  global.burners[entity.unit_number] = entity
-end
-
 function on_tick(event)
   local my_settings = settings.global
   if not my_settings["burner-fuel-bonus-enable"].value then return end
@@ -59,6 +48,17 @@ function on_tick(event)
     global.burner_index = next(global.burners, global.burner_index)
     update_burner(index)
   end
+end
+
+function on_built(event)
+  local entity = event.created_entity or event.entity or event.destination
+  if not entity or not entity.valid then return end
+  if not MY_TYPES[entity.type] then return end
+  if not entity.prototype.burner_prototype then return end
+  if event.burner_fuel_bonus then return end
+
+  -- Add to burner entity cache
+  global.burners[entity.unit_number] = entity
 end
 
 function on_blueprint_created(event)
@@ -100,15 +100,14 @@ function on_player_pipette(event)
 end
 
 function on_setting_changed(event)
-  if event.setting == "burner-fuel-bonus-enable" then
-    if not settings.global["burner-fuel-bonus-enable"].value then
-      -- Remove all bonus entities
-      for _, entity in pairs(global.burners) do
-        if entity.valid then
-          local name = get_base_name(entity.name)
-          if name ~= entity.name then
-            replace_burner(entity, name)
-          end
+  if event.setting == "burner-fuel-bonus-enable"
+  and not settings.global["burner-fuel-bonus-enable"].value then
+    -- Remove all bonus entities
+    for _, entity in pairs(global.burners) do
+      if entity.valid then
+        local name = get_base_name(entity.name)
+        if name ~= entity.name then
+          replace_burner(entity, name)
         end
       end
     end
@@ -203,12 +202,12 @@ end
 
 script.on_init(on_init)
 script.on_configuration_changed(on_configuration_changed)
+script.on_event(defines.events.on_tick, on_tick)
 script.on_event(defines.events.on_built_entity, on_built)
 script.on_event(defines.events.on_robot_built_entity, on_built)
 script.on_event(defines.events.script_raised_built, on_built)
 script.on_event(defines.events.script_raised_revive, on_built)
 script.on_event(defines.events.on_entity_cloned, on_built)
-script.on_event(defines.events.on_tick, on_tick)
 script.on_event(defines.events.on_player_setup_blueprint, on_blueprint_created)
 script.on_event(defines.events.on_player_configured_blueprint, on_blueprint_created)
 script.on_event(defines.events.on_player_pipette, on_player_pipette)
