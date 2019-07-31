@@ -84,11 +84,11 @@ local function create_bonus_entity(base_entity, bonus)
     or entity.flags[i] == "placeable-enemy" then
       table.remove(entity.flags, i)
     end
-    -- Add hidden flag
     if entity.flags[i] == "hidden" then
       already_hidden = true
     end
   end
+  -- Add hidden flag
   if not already_hidden then
     table.insert(entity.flags, "hidden")
   end
