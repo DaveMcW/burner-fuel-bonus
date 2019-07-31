@@ -75,16 +75,24 @@ local function create_bonus_entity(base_entity, bonus)
   end
   entity.fast_replaceable_group = base_entity.fast_replaceable_group
 
-  -- Remove placeable flags
-  if entity.flags then
-    for i = #entity.flags, 1, -1 do
-      if entity.flags[i] == "placeable-neutral"
-      or entity.flags[i] == "placeable-player"
-      or entity.flags[i] == "placeable-enemy" then
-        table.remove(entity.flags, i)
-      end
+  if not entity.flags then entity.flags = {} end
+  local already_hidden = false
+  for i = #entity.flags, 1, -1 do
+    -- Remove placeable flags
+    if entity.flags[i] == "placeable-neutral"
+    or entity.flags[i] == "placeable-player"
+    or entity.flags[i] == "placeable-enemy" then
+      table.remove(entity.flags, i)
+    end
+    -- Add hidden flag
+    if entity.flags[i] == "hidden" then
+      already_hidden = true
     end
   end
+  if not already_hidden then
+    table.insert(entity.flags, "hidden")
+  end
+
 
   -- Add a fake item to help with creating blueprints
   local item = table.deepcopy(base_item)
@@ -99,7 +107,7 @@ local function create_bonus_entity(base_entity, bonus)
   if not item.flags then
     item.flags = {"hidden"}
   else
-    local already_hidden = false
+    already_hidden = false
     for _, flag in pairs(item.flags) do
       if flag == "hidden" then
         already_hidden = true
