@@ -147,6 +147,12 @@ function replace_burner(entity, name)
   local health = entity.health
   local deconstruct = entity.to_be_deconstructed(entity.force)
   local last_user = entity.last_user
+  local users = {}
+  for _, player in pairs(game.players) do
+    if player.opened == entity then
+      table.insert(users, player)
+    end
+  end
 
   -- Fast replace
   local new_entity = entity.surface.create_entity{
@@ -167,6 +173,9 @@ function replace_burner(entity, name)
     end
     if last_user then
       new_entity.last_user = last_user
+    end
+    for _, player in pairs(users) do
+      player.opened = new_entity
     end
 
     -- Raise build event
