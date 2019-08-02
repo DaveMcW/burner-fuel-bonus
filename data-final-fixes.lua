@@ -93,7 +93,6 @@ local function create_bonus_entity(base_entity, bonus)
     table.insert(entity.flags, "hidden")
   end
 
-
   -- Add a fake item to help with creating blueprints
   local item = table.deepcopy(base_item)
   item.name = "burner-fuel-bonus-" .. base_item.name .. "-x" .. bonus
