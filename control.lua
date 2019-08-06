@@ -84,18 +84,36 @@ end
 
 function on_player_pipette(event)
   -- Replace modded entity with the base entity
-  if event.item.name:sub(1, 18) == "burner-fuel-bonus-" then
-    local player = game.players[event.player_index]
-    local item = game.item_prototypes[get_base_name(event.item.name)]
-    if not item then return end
-    local cursor_stack = player.cursor_stack.valid_for_read and player.cursor_stack
-    if cursor_stack then
-      if cursor_stack.name == event.item.name then
-        set_cursor(player, item)
-      end
-    elseif player.cursor_ghost and player.cursor_ghost.name == event.item.name then
+  if event.item.name:sub(1, 18) ~= "burner-fuel-bonus-" then return end
+  local item = game.item_prototypes[get_base_name(event.item.name)]
+  if not item then return end
+  local player = game.players[event.player_index]
+  local cursor_stack = player.cursor_stack.valid_for_read and player.cursor_stack
+  if cursor_stack then
+    if cursor_stack.name == event.item.name then
       set_cursor(player, item)
     end
+  elseif player.cursor_ghost and player.cursor_ghost.name == event.item.name then
+    set_cursor(player, item)
+  end
+end
+
+function on_entity_died(event)
+  -- Replace modded entity with the base entity
+  local entity = event.entity
+  if not entity or not entity.valid then return end
+  if entity.name:sub(1, 18) ~= "burner-fuel-bonus-" then return end
+  local new_entity = entity.surface.create_entity{
+    fast_replace = true,
+    name = get_base_name(entity.name),
+    position = entity.position,
+    direction = entity.direction,
+    force = entity.force,
+    spill = false,
+    create_build_effect_smoke = false,
+  }
+  if new_entity then
+    new_entity.die(event.force, event.cause)
   end
 end
 
@@ -220,4 +238,5 @@ script.on_event(defines.events.on_entity_cloned, on_built)
 script.on_event(defines.events.on_player_setup_blueprint, on_blueprint_created)
 script.on_event(defines.events.on_player_configured_blueprint, on_blueprint_created)
 script.on_event(defines.events.on_player_pipette, on_player_pipette)
+script.on_event(defines.events.on_entity_died, on_entity_died)
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_setting_changed)
