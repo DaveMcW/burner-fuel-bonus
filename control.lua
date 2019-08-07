@@ -85,7 +85,7 @@ end
 function on_player_pipette(event)
   -- Replace modded entity with the base entity
   if event.item.name:sub(1, 18) ~= "burner-fuel-bonus-" then return end
-  local item = game.item_prototypes[get_base_name(event.item.name)]
+  local item = game.item_prototypes[event.item.name:sub(19)]
   if not item then return end
   local player = game.players[event.player_index]
   local cursor_stack = player.cursor_stack.valid_for_read and player.cursor_stack

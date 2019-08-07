@@ -22,10 +22,12 @@ local function create_bonus_entity(base_entity, bonus)
     -- The entity is not buildable, abort!
     return
   end
+  local item_name = "burner-fuel-bonus-" .. base_item.name
 
   -- Create a faster version of the entity
   local entity = table.deepcopy(base_entity)
   entity.name = name
+  entity.placeable_by = {item = item_name, count = 1}
   local multiplier = bonus / 100
 
   -- Add speed bonuses
@@ -93,9 +95,12 @@ local function create_bonus_entity(base_entity, bonus)
     table.insert(entity.flags, "hidden")
   end
 
+  data:extend{entity}
+
   -- Add a fake item to help with creating blueprints
+  if data.raw.item[item_name] then return end
   local item = table.deepcopy(base_item)
-  item.name = "burner-fuel-bonus-" .. base_item.name .. "-x" .. bonus
+  item.name = item_name
   if not item.localised_name then
     item.localised_name = entity.localised_name
   end
@@ -118,7 +123,6 @@ local function create_bonus_entity(base_entity, bonus)
     end
   end
 
-  data:extend{entity}
   data:extend{item}
 end
 
