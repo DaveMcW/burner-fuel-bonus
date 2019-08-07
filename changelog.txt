@@ -2,7 +2,7 @@
 Version: 0.0.10
 Date: 2019-08-06
   Changes:
-    - Now uses less unique item types internally.
+    - Now creates less unique item types internally.
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.9
 Date: 2019-08-05
