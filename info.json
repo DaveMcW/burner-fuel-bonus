@@ -1,7 +1,7 @@
 {
   "name":"burner-fuel-bonus",
   "author":"DaveMcW",
-  "version":"0.0.10",
+  "version":"0.0.11",
   "title":"Burner Fuel Bonus",
   "homepage":"",
   "description":"Burner inserters and machines run faster if their fuel has an acceleration bonus.",

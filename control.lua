@@ -112,8 +112,11 @@ function on_entity_died(event)
     spill = false,
     create_build_effect_smoke = false,
   }
-  if new_entity then
+  if not new_entity then return end
+  if event.cause then
     new_entity.die(event.force, event.cause)
+  else
+    new_entity.die(event.force)
   end
 end
 
