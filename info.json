@@ -5,6 +5,6 @@
   "title":"Burner Fuel Bonus",
   "homepage":"",
   "description":"Burner inserters and machines run faster if their fuel has an acceleration bonus.",
-  "dependencies": ["base"],
+  "dependencies": ["base", "(?) Krastorio2"],
   "factorio_version": "0.18"
 }
