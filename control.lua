@@ -1,3 +1,5 @@
+
+
 -- Entity types that have a burner bonus
 local TYPE_LIST = {
   "assembling-machine",
@@ -175,6 +177,14 @@ function replace_burner(entity, name)
     end
   end
 
+  -- Workaround for https://forums.factorio.com/85553
+  local input_items = {}
+  local output_items = {}
+  if entity.prototype.fixed_recipe then
+    input_items = entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()
+    output_items = entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()
+  end
+
   -- Fast replace
   local new_entity = entity.surface.create_entity{
     fast_replace = true,
@@ -197,6 +207,20 @@ function replace_burner(entity, name)
     end
     for _, player in pairs(users) do
       player.opened = new_entity
+    end
+
+    -- Workaround for https://forums.factorio.com/85553
+    if entity.prototype.fixed_recipe then
+      local inventory = new_entity.get_inventory(defines.inventory.assembling_machine_input)
+      inventory.clear()
+      for item_name, item_count in pairs(input_items) do
+        inventory.insert{name = item_name, count = item_count}
+      end
+      inventory = new_entity.get_inventory(defines.inventory.assembling_machine_output)
+      inventory.clear()
+      for item_name, item_count in pairs(output_items) do
+        inventory.insert{name = item_name, count = item_count}
+      end
     end
 
     -- Raise build event
