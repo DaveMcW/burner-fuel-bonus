@@ -1,5 +1,3 @@
-
-
 -- Entity types that have a burner bonus
 local TYPE_LIST = {
   "assembling-machine",
@@ -178,9 +176,12 @@ function replace_burner(entity, name)
   end
 
   -- Workaround for https://forums.factorio.com/85553
+  local fixed_recipe = entity.prototype.fixed_recipe
+  local crafting_progress = 0
   local input_items = {}
   local output_items = {}
-  if entity.prototype.fixed_recipe then
+  if fixed_recipe then
+    crafting_progress = entity.crafting_progress
     input_items = entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()
     output_items = entity.get_inventory(defines.inventory.assembling_machine_output).get_contents()
   end
@@ -210,7 +211,8 @@ function replace_burner(entity, name)
     end
 
     -- Workaround for https://forums.factorio.com/85553
-    if entity.prototype.fixed_recipe then
+    if fixed_recipe then
+      new_entity.crafting_progress = crafting_progress
       local inventory = new_entity.get_inventory(defines.inventory.assembling_machine_input)
       inventory.clear()
       for item_name, item_count in pairs(input_items) do
