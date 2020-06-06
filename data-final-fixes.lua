@@ -66,9 +66,12 @@ local function create_bonus_entity(base_entity, bonus)
     return
   end
 
-  -- Display the base entity name
+  -- Use base entity name and description
   if not entity.localised_name then
     entity.localised_name = {"entity-name." .. base_entity.name}
+  end
+  if not entity.localised_description then
+    entity.localised_description = {"entity-description." .. base_entity.name}
   end
 
   -- Add to base entity's fast_replaceable_group
@@ -102,7 +105,10 @@ local function create_bonus_entity(base_entity, bonus)
   local item = table.deepcopy(base_item)
   item.name = item_name
   if not item.localised_name then
-    item.localised_name = entity.localised_name
+    item.localised_name = {"item-name." .. base_item.name}
+  end
+  if not item.localised_description then
+    item.localised_description = {"item-description." .. base_item.name}
   end
   item.place_result = entity.name
 
