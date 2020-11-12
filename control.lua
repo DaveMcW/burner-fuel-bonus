@@ -76,10 +76,17 @@ function on_blueprint_created(event)
   -- Replace modded entity with the base entity
   local entities = blueprint.get_blueprint_entities()
   if not entities then return end
+  local count = 0
   for _, entity in pairs(entities) do
-    entity.name = get_base_name(entity.name)
+    local new_name = get_base_name(entity.name)
+    if entity.name ~= new_name then
+      entity.name = new_name
+      count = count + 1
+    end
   end
-  blueprint.set_blueprint_entities(entities)
+  if count > 0 then
+    blueprint.set_blueprint_entities(entities)
+  end
 end
 
 function on_player_pipette(event)
